@@ -10,13 +10,25 @@ if not api_key:
     raise SystemExit(1)
 
 client = genai.Client(api_key=api_key)
-question = input("ask any technical question: ")
-response = client.models.generate_content(
-    model="gemini-3.5-flash",
-    contents=question,
-    config=types.GenerateContentConfig(
-        system_instruction="""You are only able to answer technical questions. Other topics are out of your scope.
-        If the question is not technical, respond with "Sorry, I can only answer technical questions.".""",
+conversation = []
+while(True):
+    question = input("ask any technical question: ")
+    conversation.append((question, ""))
+    if question.lower() == "exit":
+        print("Exiting the chatbot. Goodbye!")
+        break
+    
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=conversation,
+        config=types.GenerateContentConfig(
+            system_instruction="""You are only able to answer technical questions. Other topics are out of your scope.
+            If the question is not technical, respond with "Sorry, I can only answer technical questions.".
+            here is the conversation history:
+            format is [(question , answer)]""",
+        )
     )
-)
-print(response.text)
+
+    conversation.append((question, response.text))
+    print(response.text)
+    
