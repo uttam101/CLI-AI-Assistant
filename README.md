@@ -7,6 +7,7 @@ Features
 --------
 - CLI prompt for questions
 - Technical-only guardrail via system instruction
+- Rolling conversation history
 - Environment-based API key loading via `.env`
 
 Requirements
@@ -69,6 +70,12 @@ If the question is not technical, the assistant replies:
 ```
 Sorry, I can only answer technical questions.
 ```
+
+Type `exit` to quit the chatbot.
+
+Configuration
+-------------
+- `MAX_TURNS`: how many recent question/answer pairs to keep
 
 Troubleshooting
 ---------------
