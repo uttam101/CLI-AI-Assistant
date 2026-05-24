@@ -2,6 +2,14 @@ from google import genai
 from google.genai import types
 import os
 from dotenv import load_dotenv
+import json
+
+if os.path.isfile("data.json"):
+    print("File exists")
+else:
+    with open("data.json", "w") as file:
+        json.dump({"history": []}, file)
+
 
 load_dotenv()
 api_key = os.getenv("GENAI_API_KEY")
@@ -12,22 +20,17 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 MODEL_NAME = "gemini-3.5-flash"
-MAX_TURNS = 6 # why 6? any specific reason?
-DEBUG = True
+MAX_TURNS = 2
 
-history = []
-
-def debug_log(message):
-    if DEBUG:
-        print(f"[debug] {message}")
-
-def trim_history(items, max_turns): # what exactly is this function doing? can you explain the logic behind it with example?
+def trim_history(items, max_turns):
     max_items = max_turns * 2
-    debug_log(f"Trim check: items={len(items)}, max_items={max_items}")
     if len(items) > max_items:
-        debug_log("Trimming history to most recent items")
         return items[-max_items:]
     return items
+
+with open("data.json", "r") as file:
+    data = json.load(file)
+full_history = data.get("history", [])
 
 while True:
     question = input("ask any technical question: ")
@@ -35,15 +38,11 @@ while True:
         print("Exiting the chatbot. Goodbye!")
         break
 
-    debug_log("Appending user message to history")
-    history.append({"role": "user", "parts": [{"text": question}]})
-    history = trim_history(history, MAX_TURNS)
-    debug_log(f"History length after user append: {len(history)}, history={history}")
-
-    debug_log("Calling model with current history")
+    full_history.append({"role": "user", "parts": [{"text": question}]})
+    window_history = trim_history(full_history, MAX_TURNS)
     response = client.models.generate_content(
         model=MODEL_NAME,
-        contents=history,
+        contents=window_history,
         config=types.GenerateContentConfig(
             system_instruction=(
                 "You only answer technical questions. If a question is not technical, reply: "
@@ -52,11 +51,9 @@ while True:
         ),
     )
 
-    answer = response.text or "" # this is only for the safety if the response is exactly not a string or llm did not return anything then for a safety net we are assigning a empty string? am i exactly right? or is there any other reason for this?
-    debug_log("Appending model response to history")
-    history.append({"role": "model", "parts": [{"text": answer}]})
-    history = trim_history(history, MAX_TURNS)
-    debug_log(f"History length after model append: {len(history)}, history={history}")
-    print(answer)
-    # lastly why this specific format for the history ({"role": "model", "parts": [{"text": answer}]})? is it some specific format that the model expects or is it just a convention we are following here?
+    answer = response.text or ""
+    print(f"Answer: {answer}")
+    full_history.append({"role": "model", "parts": [{"text": answer}]})
+    with open("data.json", "w") as file:
+        json.dump({"history": full_history}, file, indent=2)
     

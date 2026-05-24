@@ -7,7 +7,8 @@ Features
 --------
 - CLI prompt for questions
 - Technical-only guardrail via system instruction
-- Rolling conversation history
+- Full conversation saved to `data.json`
+- Trimmed history window sent to the model
 - Environment-based API key loading via `.env`
 
 Requirements
@@ -73,9 +74,16 @@ Sorry, I can only answer technical questions.
 
 Type `exit` to quit the chatbot.
 
+Conversation history
+--------------------
+- Stored in `data.json` as a role-based message list.
+- Loaded on startup and updated after each response.
+- The model only receives the most recent `MAX_TURNS` pairs.
+
 Configuration
 -------------
-- `MAX_TURNS`: how many recent question/answer pairs to keep
+- `MODEL_NAME`: model to use (set in [main.py](main.py#L13)).
+- `MAX_TURNS`: how many recent question/answer pairs to keep (set in [main.py](main.py#L14)).
 
 Troubleshooting
 ---------------
