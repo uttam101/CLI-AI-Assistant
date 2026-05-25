@@ -7,8 +7,10 @@ Features
 --------
 - CLI prompt for questions
 - Technical-only guardrail via system instruction
+- Optional persona via `--persona`
 - Full conversation saved to `data.json`
 - Trimmed history window sent to the model
+- Reset history with `--reset`
 - Environment-based API key loading via `.env`
 
 Requirements
@@ -74,6 +76,21 @@ Sorry, I can only answer technical questions.
 
 Type `exit` to quit the chatbot.
 
+Command-line options
+--------------------
+- `--persona "doctor"`: change the assistant persona (default: `technical assistant`)
+- `--reset`: clear the saved conversation history on startup
+
+Examples
+--------
+```bash
+python3 main.py --persona "doctor"
+```
+
+```bash
+python3 main.py --reset
+```
+
 Conversation history
 --------------------
 - Stored in `data.json` as a role-based message list.
@@ -82,8 +99,8 @@ Conversation history
 
 Configuration
 -------------
-- `MODEL_NAME`: model to use (set in [main.py](main.py#L13)).
-- `MAX_TURNS`: how many recent question/answer pairs to keep (set in [main.py](main.py#L14)).
+- `MODEL_NAME`: model to use (set in `main.py`).
+- `MAX_TURNS`: how many recent question/answer pairs to keep (set in `main.py`).
 
 Troubleshooting
 ---------------
